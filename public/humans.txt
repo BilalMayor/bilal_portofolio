@@ -1,0 +1,14 @@
+/* TEAM */
+Developer: Bilal Mayor Abdillah
+GitHub: https://github.com/BilalMayor
+Instagram: @bilal.mayor
+Email: bilalmayorab@gmail.com
+Location: Malang, Indonesia
+
+/* THANKS */
+SMK Telkom Malang
+
+/* SITE */
+Standards: HTML5, CSS3, ESNext
+Tools: React, Vite, Tailwind CSS, Firebase, Google Gemini AI
+Software: VS Code, Figma

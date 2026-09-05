@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="uiuxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A855F7" />
+      <stop offset="50%" stop-color="#EC4899" />
+      <stop offset="100%" stop-color="#F43F5E" />
+    </linearGradient>
+  </defs>
+  <!-- Figma/Design Layout Matrix -->
+  <rect x="10" y="10" width="18" height="18" rx="5" fill="#F43F5E" />
+  <rect x="36" y="10" width="18" height="18" rx="9" fill="#FB923C" />
+  <rect x="10" y="36" width="18" height="18" rx="9" fill="#A855F7" />
+  <circle cx="45" cy="45" r="9" fill="#06B6D4" />
+</svg>
