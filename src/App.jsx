@@ -40,7 +40,10 @@ const pageVariants = {
 
 const App = () => {
   const [activePage, setActivePage] = useState("tentang");
-  const [activeColor, setActiveColor] = useState("emerald");
+  const [activeColor, setActiveColor] = useState("tangerine");
+  const [colorCombo, setColorCombo] = useState(() => {
+    return localStorage.getItem("bilal_color_combo") || "2";
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -49,23 +52,32 @@ const App = () => {
   const [adminTab, setAdminTab] = useState("gallery");
 
   const scrollbarColors = {
-    emerald: "#10b981", sky: "#0ea5e9", violet: "#8b5cf6", amber: "#FEE685", red: "#ef4444",
+    tangerine: "#FF6B35",
+    turquoise: "#00F5D4",
+    fuchsia: "#F72585",
+    bronze: "#E2B870",
+    indigo: "#6366F1",
   };
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--scroll-thumb", scrollbarColors[activeColor]);
+    document.documentElement.style.setProperty("--scroll-thumb", scrollbarColors[activeColor] || "#FF6B35");
   });
 
+  useEffect(() => {
+    document.documentElement.setAttribute("data-combo", colorCombo);
+    localStorage.setItem("bilal_color_combo", colorCombo);
+  }, [colorCombo]);
+
   const themeMap = {
-    emerald: { accent: "#10b981", accentRgb: "16, 185, 129" },
-    sky: { accent: "#0ea5e9", accentRgb: "14, 165, 233" },
-    violet: { accent: "#8b5cf6", accentRgb: "139, 92, 246" },
-    amber: { accent: "#FEE685", accentRgb: "245, 158, 11" },
-    red: { accent: "#ef4444", accentRgb: "239, 68, 68" },
+    tangerine: { accent: "#FF6B35", accentRgb: "255, 107, 53" },
+    turquoise: { accent: "#00F5D4", accentRgb: "0, 245, 212" },
+    fuchsia: { accent: "#F72585", accentRgb: "247, 37, 133" },
+    bronze: { accent: "#E2B870", accentRgb: "226, 184, 112" },
+    indigo: { accent: "#6366F1", accentRgb: "99, 102, 241" },
   };
 
   useEffect(() => {
-    const theme = themeMap[activeColor];
+    const theme = themeMap[activeColor] || themeMap.tangerine;
     if (!theme) return;
     document.documentElement.style.setProperty("--accent", theme.accent);
     document.documentElement.style.setProperty("--accent-rgb", theme.accentRgb);
@@ -87,7 +99,7 @@ const App = () => {
     switch (activePage) {
       case "proyek": return <Projects />;
       case "galeri": return <Gallery activeColor={activeColor} />;
-      case "keahlian": return <Skills />;
+      case "keahlian": return <Skills onNavigatePage={setActivePage} />;
       case "kontak": return <Contact />;
       case "pencapaian": return <Achievements />;
       case "chat": return <Chat />;
@@ -123,15 +135,15 @@ const App = () => {
       <div className="absolute inset-0 pointer-events-none z-0">
         <Aurora
           colorStops={
-            activeColor === "emerald"
-              ? ["#10b981", "#059669", "#047857"]
-              : activeColor === "sky"
-              ? ["#0ea5e9", "#0284c7", "#0369a1"]
-              : activeColor === "violet"
-              ? ["#8b5cf6", "#7c3aed", "#6d28d9"]
-              : activeColor === "amber"
-              ? ["#FEE685", "#f59e0b", "#d97706"]
-              : ["#ef4444", "#dc2626", "#b91c1c"]
+            activeColor === "tangerine"
+              ? ["#FF6B35", "#ea580c", "#c2410c"]
+              : activeColor === "turquoise"
+              ? ["#00F5D4", "#06b6d4", "#0891b2"]
+              : activeColor === "fuchsia"
+              ? ["#F72585", "#d946ef", "#c026d3"]
+              : activeColor === "bronze"
+              ? ["#E2B870", "#d97706", "#b45309"]
+              : ["#6366F1", "#4f46e5", "#4338ca"]
           }
           blend={0.5}
           amplitude={1.0}
@@ -140,53 +152,68 @@ const App = () => {
       </div>
 
       <div className="relative z-10 flex items-center justify-center p-2 sm:p-3 lg:p-5 h-dvh lg:h-screen">
-        <div
-          className={`w-full max-w-7xl h-full lg:h-[88vh] rounded-2xl sm:rounded-3xl flex text-zinc-100 relative overflow-hidden ${activeColor}`}
-          style={{
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-default)",
-            boxShadow: "0 0 0 1px rgba(255,255,255,0.03) inset, 0 24px 64px rgba(0, 0, 0, 0.5)",
-          }}
-        >
-          {/* Top shimmer line */}
-          <div className="glass-shimmer rounded-t-2xl sm:rounded-t-3xl" />
-          <Sidebar
-            setActivePage={setActivePage}
-            activePage={activePage}
-            setActiveColor={setActiveColor}
-            activeColor={activeColor}
-            isOpen={isSidebarOpen}
-            setIsOpen={setIsSidebarOpen}
-          />
-          <div className="flex-1 min-w-0 w-full flex flex-col">
-            <Topbar
+        {/* Outer shell container with animated side glow and border beam */}
+        <div className="relative w-full max-w-7xl h-full lg:h-[88vh] flex items-center justify-center">
+          {/* Subtle Ambient Flank/Side Glow (Di samping kotaknya: kiri dan kanan) */}
+          <div className="shell-side-glow shell-side-glow-left" aria-hidden="true" />
+          <div className="shell-side-glow shell-side-glow-right" aria-hidden="true" />
+
+          {/* Precision Perimeter Border Beam (Garis aksen halus mengitari tepi kotak) */}
+          <div className="shell-border-beam" aria-hidden="true" />
+
+          {/* Main Portfolio Content Card */}
+          <div
+            className={`w-full h-full rounded-2xl sm:rounded-3xl flex text-[var(--text-primary)] relative overflow-hidden z-10 ${activeColor}`}
+            style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-default)",
+              boxShadow: "var(--shell-shadow)",
+            }}
+          >
+            {/* Top shimmer line */}
+            <div className="glass-shimmer rounded-t-2xl sm:rounded-t-3xl" />
+            <Sidebar
+              setActivePage={setActivePage}
               activePage={activePage}
-              setIsSidebarOpen={setIsSidebarOpen}
-              onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+              setActiveColor={setActiveColor}
+              activeColor={activeColor}
+              colorCombo={colorCombo}
+              setColorCombo={setColorCombo}
+              isOpen={isSidebarOpen}
+              setIsOpen={setIsSidebarOpen}
             />
-            <main className="flex-1 overflow-y-auto overflow-x-hidden">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activePage}
-                  variants={pageVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  className="h-full"
-                >
-                  <Suspense fallback={
-                    <div className="h-full w-full flex items-center justify-center">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-6 h-6 border-2 border-zinc-800 border-t-[var(--accent)] rounded-full animate-spin" />
-                        <span className="text-zinc-600 text-xs font-medium tracking-wide">Memuat...</span>
+            <div className="flex-1 min-w-0 w-full flex flex-col">
+              <Topbar
+                activePage={activePage}
+                setIsSidebarOpen={setIsSidebarOpen}
+                onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+                colorCombo={colorCombo}
+                setColorCombo={setColorCombo}
+              />
+              <main className="flex-1 overflow-y-auto overflow-x-hidden pr-1 sm:pr-1.5">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activePage}
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className="h-full"
+                  >
+                    <Suspense fallback={
+                      <div className="h-full w-full flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-6 h-6 border-2 border-zinc-800 border-t-[var(--accent)] rounded-full animate-spin" />
+                          <span className="text-zinc-600 text-xs font-medium tracking-wide">Memuat...</span>
+                        </div>
                       </div>
-                    </div>
-                  }>
-                    {renderPage()}
-                  </Suspense>
-                </motion.div>
-              </AnimatePresence>
-            </main>
+                    }>
+                      {renderPage()}
+                    </Suspense>
+                  </motion.div>
+                </AnimatePresence>
+              </main>
+            </div>
           </div>
         </div>
       </div>
@@ -200,6 +227,8 @@ const App = () => {
         setActivePage={setActivePage}
         setActiveColor={setActiveColor}
         activeColor={activeColor}
+        colorCombo={colorCombo}
+        setColorCombo={setColorCombo}
       />
 
       {showAdminLogin && (

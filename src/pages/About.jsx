@@ -1,7 +1,7 @@
 import TextType from "../components/text/TextType";
 import DecryptedText from "../components/ui/DecryptedText";
 import logo_telkom from "../assets/cards/logo_telkom.webp";
-import logo_me from "../assets/cards/logo_me.webp";
+import bilal_avatar from "../assets/cards/bilal_avatar.webp";
 import google_maps from "../assets/cards/google_maps.webp";
 import BlurText from "../components/ui/BlurText";
 import { useState, lazy, Suspense } from "react";
@@ -171,8 +171,8 @@ const About = ({ isReady }) => {
             className="flex items-center gap-3 p-4 rounded-xl group cursor-default transition-all duration-300 hover:bg-[var(--bg-hover)]"
             style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)" }}
           >
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[var(--bg-hover)] shrink-0">
-              <img src={logo_me} alt="Profile Icon" width="24" height="24" decoding="async" className="w-6 h-6 object-contain" />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[var(--bg-hover)] shrink-0 overflow-hidden">
+              <img src={bilal_avatar} alt="Bilal Mayor Abdillah" width="32" height="32" decoding="async" className="w-8 h-8 rounded-full object-cover" />
             </div>
             <div>
               <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-[0.15em] font-['JetBrains_Mono'] mb-0.5">{t("about.nameLabel")}</p>

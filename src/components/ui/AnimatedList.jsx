@@ -40,7 +40,19 @@ const AnimatedList = ({
   const [selectedIndex, setSelectedIndex] = useState(initialSelectedIndex);
   const [keyboardNav, setKeyboardNav] = useState(false);
   const [topGradientOpacity, setTopGradientOpacity] = useState(0);
-  const [bottomGradientOpacity, setBottomGradientOpacity] = useState(1);
+  const [bottomGradientOpacity, setBottomGradientOpacity] = useState(0);
+
+  const updateGradients = useCallback(() => {
+    if (!listRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+    setTopGradientOpacity(Math.min(scrollTop / 40, 1));
+    const bottomDistance = scrollHeight - (scrollTop + clientHeight);
+    setBottomGradientOpacity(scrollHeight <= clientHeight ? 0 : Math.min(bottomDistance / 40, 1));
+  }, []);
+
+  useEffect(() => {
+    updateGradients();
+  }, [items, maxHeight, updateGradients]);
 
   const handleItemMouseEnter = useCallback((index) => {
     setSelectedIndex(index);
@@ -165,12 +177,18 @@ const AnimatedList = ({
       {showGradients && (
         <>
           <div
-            className="absolute top-0 left-0 right-0 h-[40px] bg-gradient-to-b from-zinc-950/90 to-transparent pointer-events-none transition-opacity duration-300 rounded-t-2xl z-10"
-            style={{ opacity: topGradientOpacity }}
+            className="absolute top-0 left-0 right-0 h-[40px] pointer-events-none transition-opacity duration-300 rounded-t-2xl z-10"
+            style={{
+              opacity: topGradientOpacity,
+              background: "linear-gradient(to bottom, var(--bg-surface, #ffffff), transparent)",
+            }}
           />
           <div
-            className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-zinc-950/90 to-transparent pointer-events-none transition-opacity duration-300 rounded-b-2xl z-10"
-            style={{ opacity: bottomGradientOpacity }}
+            className="absolute bottom-0 left-0 right-0 h-[60px] pointer-events-none transition-opacity duration-300 rounded-b-2xl z-10"
+            style={{
+              opacity: bottomGradientOpacity,
+              background: "linear-gradient(to top, var(--bg-surface, #ffffff), transparent)",
+            }}
           />
         </>
       )}

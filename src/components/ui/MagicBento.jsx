@@ -566,16 +566,16 @@ const MagicBento = ({
             hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] ${enableBorderGlow ? "card--border-glow" : ""}`;
 
             const cardStyle = {
-              backgroundColor: card.color || "rgba(255,255,255,0.05)",
-              borderColor: "rgba(255,255,255,0.10)",
-              color: "var(--white)",
+              background: "var(--bg-elevated)",
+              borderColor: "var(--border-default)",
+              color: "var(--text-primary)",
               "--glow-x": "50%",
               "--glow-y": "50%",
               "--glow-intensity": "0",
               "--glow-radius": "200px",
               backdropFilter: "blur(14px) saturate(160%)",
               WebkitBackdropFilter: "blur(14px) saturate(160%)",
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.10), 0 4px 20px rgba(0,0,0,0.20)",
+              boxShadow: "var(--glass-shadow)",
             };
 
             if (enableStars) {
@@ -597,9 +597,8 @@ const MagicBento = ({
                       <div
                         className="w-14 h-14 flex-shrink-0 rounded-xl flex items-center justify-center"
                         style={{
-                          background: "rgba(255,255,255,0.08)",
-                          border: "1px solid rgba(255,255,255,0.12)",
-                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.15)",
+                          background: "var(--bg-hover)",
+                          border: "1px solid var(--border-subtle)",
                         }}
                       >
                         <img src={card.icon} alt={card.title} className={`${card.iconClassName || "w-8 h-8"} object-contain`} draggable={false} />
@@ -607,8 +606,8 @@ const MagicBento = ({
 
                       {/* Text */}
                       <div>
-                        <h3 className="text-lg font-semibold">{card.title}</h3>
-                        <p className="text-sm text-white/60">{card.description}</p>
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">{card.title}</h3>
+                        <p className="text-sm text-[var(--text-secondary)]">{card.description}</p>
                       </div>
                     </div>
                   </ParticleCard>
@@ -726,10 +725,10 @@ const MagicBento = ({
                   el.addEventListener("click", handleClick);
                 }}
               >
-                <div className="card__header flex justify-between gap-3 relative text-white">
+                <div className="card__header flex justify-between gap-3 relative text-[var(--text-primary)]">
                   <span className="card__label text-base">{card.label}</span>
                 </div>
-                <div className="card__content flex flex-col relative text-white">
+                <div className="card__content flex flex-col relative text-[var(--text-primary)]">
                   <h3 className={`card__title font-normal text-base m-0 mb-1 ${textAutoHide ? "text-clamp-1" : ""}`}>{card.title}</h3>
                   <p className={`card__description text-xs leading-5 opacity-90 ${textAutoHide ? "text-clamp-2" : ""}`}>{card.description}</p>
                 </div>

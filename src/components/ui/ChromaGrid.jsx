@@ -139,28 +139,28 @@ const ChromaGrid = ({ items, className = "", radius = 300, damping = 0.45, fadeO
         const accentColor = c.borderColor || "#10B981";
         return (
           <article
-            key={i}
+            key={c.id || i}
+            onClick={() => onItemClick?.(c)}
             onMouseMove={handleCardMove}
-            onClick={(e) => handleCardClick(c, e)}
-            className="group relative flex flex-col w-full rounded-3xl overflow-hidden transition-all duration-300 cursor-pointer hover:scale-[1.02] active:scale-95 border border-white/10 hover:border-[var(--card-accent)] hover:shadow-xl"
+            className="group relative flex flex-col w-full rounded-3xl overflow-hidden transition-all duration-300 cursor-pointer hover:scale-[1.02] active:scale-95 border border-[var(--border-default)] hover:border-[var(--card-accent)] hover:shadow-xl"
             style={{
               "--card-accent": accentColor,
               "--card-accent-glow": `${accentColor}55`,
-              background: "rgba(18, 18, 24, 0.45)",
+              background: "var(--bg-elevated)",
               backdropFilter: "blur(20px) saturate(180%)",
               WebkitBackdropFilter: "blur(20px) saturate(180%)",
-              boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.35)",
+              boxShadow: "var(--glass-shadow)",
               isolation: "isolate",
             }}
           >
             {/* Liquid Glass top shimmer line */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-white/20 pointer-events-none z-20 rounded-t-2xl" />
+            <div className="glass-shimmer rounded-t-2xl" />
 
             {/* Hover colored ambient glow layer */}
             <div
               className="absolute inset-0 pointer-events-none transition-opacity duration-500 z-0 opacity-0 group-hover:opacity-100 rounded-2xl"
               style={{
-                background: `radial-gradient(circle at 50% 0%, ${accentColor}30 0%, rgba(18,18,24,0) 75%)`,
+                background: `radial-gradient(circle at 50% 0%, ${accentColor}30 0%, transparent 75%)`,
               }}
             />
 
@@ -173,7 +173,7 @@ const ChromaGrid = ({ items, className = "", radius = 300, damping = 0.45, fadeO
             />
 
             {/* Image Container — aspect-video for uniform responsive sizing */}
-            <div className="relative z-10 w-full aspect-video shrink-0 bg-black/30 backdrop-blur-xs overflow-hidden border-b border-white/10">
+            <div className="relative z-10 w-full aspect-video shrink-0 bg-black/20 backdrop-blur-xs overflow-hidden border-b border-[var(--border-subtle)]">
               <img
                 src={c.image}
                 alt={c.title || "Project Image"}
@@ -186,26 +186,26 @@ const ChromaGrid = ({ items, className = "", radius = 300, damping = 0.45, fadeO
 
             {/* Footer Content — fills remaining height uniformly */}
             <footer
-              className="relative z-10 flex-1 p-4 text-white font-sans flex flex-col justify-between shrink-0 transition-colors duration-300"
+              className="relative z-10 flex-1 p-4 text-[var(--text-primary)] font-sans flex flex-col justify-between shrink-0 transition-colors duration-300"
               style={{
-                background: "rgba(255, 255, 255, 0.03)",
-                borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "var(--bg-elevated)",
+                borderTop: "1px solid var(--border-subtle)",
               }}
             >
               <div>
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="m-0 text-[1rem] font-semibold text-zinc-100 group-hover:text-white transition-colors line-clamp-1">
+                  <h3 className="m-0 text-[1rem] font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors line-clamp-1">
                     {c.title}
                   </h3>
-                  {c.handle && <span className="text-[0.85rem] opacity-80 font-mono shrink-0">{c.handle}</span>}
+                  {c.handle && <span className="text-[0.85rem] text-[var(--text-tertiary)] font-mono shrink-0">{c.handle}</span>}
                 </div>
-                <p className="m-0 text-[0.8rem] text-zinc-300 font-medium line-clamp-2 mt-1.5 leading-relaxed">
+                <p className="m-0 text-[0.8rem] text-[var(--text-secondary)] font-medium line-clamp-2 mt-1.5 leading-relaxed">
                   {c.subtitle}
                 </p>
               </div>
 
               {c.url && (
-                <div className="flex items-center gap-2 text-[0.78rem] text-zinc-400 group-hover:text-white transition-colors font-medium mt-auto pt-2">
+                <div className="flex items-center gap-2 text-[0.78rem] text-[var(--text-tertiary)] group-hover:text-[var(--accent)] transition-colors font-medium mt-auto pt-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                     <polyline points="15 3 21 3 21 9"></polyline>

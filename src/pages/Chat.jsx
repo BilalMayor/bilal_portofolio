@@ -1,311 +1,411 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useState, useRef } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
 import { loginWithGoogle, loginWithGithub } from "../lib/auth";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
-import { addDoc, serverTimestamp } from "firebase/firestore";
-
-import { db } from "../lib/firebase";
-
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 import google from "../assets/cards/google.svg";
 import github from "../assets/cards/github.webp";
-import Orb from "../components/ui/Orb";
-import { LogOut, Send } from "lucide-react";
+import CyberCore from "../components/ui/CyberCore";
+import {
+  LogOut,
+  Send,
+  Sparkles,
+  MessageSquare,
+  Zap,
+  Check,
+  Copy,
+  Terminal,
+  ShieldCheck,
+  ChevronRight
+} from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 
+const quickPrompts = [
+  "Halo Bilal! Saya tertarik dengan portofolio Anda.",
+  "Bagaimana pengalaman Anda di bidang Software QA?",
+  "Bisa ceritakan tentang proyek web yang paling menantang?",
+  "Apakah Anda terbuka untuk peluang magang / freelance?",
+];
+
 const Chat = () => {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const isId = language === "id";
+
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
+
   const messagesEndRef = useRef(null);
 
-  const handleSend = async () => {
-    if (!message.trim() || !user) return;
-
-    console.log("User object saat kirim:", {
-      uid: user.uid,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      email: user.email,
-      providerData: user.providerData
-    });
-
-    try {
-      const docRef = await addDoc(collection(db, "messages"), {
-        text: message,
-        uid: user.uid,
-        name: user.displayName || "Anonymous",
-        photo: user.photoURL,
-        createdAt: serverTimestamp(),
-      });
-
-      console.log("Message saved with ID:", docRef.id);
-    } catch (error) {
-      console.error("Error saving:", error);
-    }
-
-    setMessage("");
-  };
-
+  // Firestore real-time listener
   useEffect(() => {
     const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
-
-    const unsub = onSnapshot(q, (snapshot) => {
-      setMessages(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-      );
-    });
-
+    const unsub = onSnapshot(
+      q,
+      (snapshot) => {
+        setMessages(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+        );
+      },
+      (error) => {
+        console.warn("Firestore snapshot error:", error);
+      }
+    );
     return () => unsub();
   }, []);
 
+  // Firebase auth state observer
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser?.displayName) {
+        localStorage.setItem("last_chat_user_name", currentUser.displayName);
+      }
     });
-
     return () => unsub();
   }, []);
 
+  // Auto scroll
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const handleSend = async () => {
+    if (!message.trim() || !user) return;
+    const textToSend = message.trim();
+    setMessage("");
+
+    try {
+      await addDoc(collection(db, "messages"), {
+        text: textToSend,
+        uid: user.uid,
+        name: user.displayName || "Anonymous Explorer",
+        photo: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || "A")}&background=FF6B35&color=fff`,
+        createdAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      await loginWithGoogle();
+    } catch (error) {
+      console.warn("Google login popup closed or failed:", error);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleGithubLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      await loginWithGithub();
+    } catch (error) {
+      console.warn("GitHub login failed:", error);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleCopyMessage = async (id, text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   return (
-    <section className="relative px-4 h-full">
-      <div
-        className={`
-      max-w-6xl mx-auto h-full
-      grid gap-6 lg:gap-8 items-center
-      ${user ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"}
-    `}
-      >
-        {/* CHAT / LOGIN COLUMN */}
-        <div
-          className={`
-        flex justify-center
-        ${user ? "col-span-1" : "lg:col-span-7"}
-      `}
-        >
-          <div
-            className={`
-          w-full relative overflow-hidden
-          ${user ? "max-w-4xl" : "max-w-2xl"}
-          rounded-2xl
-          p-5 sm:p-7
-          mt-4 mb-4 sm:mt-6 sm:mb-6
-        `}
+    <section className="relative px-3 sm:px-6 py-4 h-full flex flex-col justify-center">
+      <div className="max-w-6xl mx-auto w-full h-full flex flex-col justify-center">
+        {!user ? (
+          /* ═════════════════════════════════════════════════════════════
+             STATE A: NOT LOGGED IN — Split Console & CyberCore Matrix
+             ═════════════════════════════════════════════════════════════ */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-6">
+            {/* Left: Login Terminal */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="lg:col-span-7 rounded-2xl p-6 sm:p-8 relative overflow-hidden flex flex-col justify-between"
+              style={{
+                background: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+                boxShadow: "var(--glass-shadow-elevated)",
+              }}
+            >
+              <div className="glass-shimmer rounded-t-2xl" />
+
+              <div className="space-y-6">
+                {/* Header Badge */}
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono font-semibold bg-[rgba(var(--accent-rgb),0.1)] text-[var(--accent)] border border-[rgba(var(--accent-rgb),0.25)]">
+                    <Terminal size={13} />
+                    <span>Bilal Community Network</span>
+                  </div>
+
+                  <h1 className="font-[Space_Grotesk] text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
+                    {isId ? "Ruang Diskusi & Pesan Langsung" : "Live Chat & Community Hub"}
+                  </h1>
+
+                  <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
+                    {isId
+                      ? "Masuk secara instan dengan akun Google atau GitHub Anda untuk bergabung dalam diskusi dan meninggalkan pesan."
+                      : "Sign in instantly with your Google or GitHub account to join the discussion and leave a message."}
+                  </p>
+                </div>
+
+                {/* Direct One-Click Auth */}
+                <div className="space-y-3 pt-2">
+                  <motion.button
+                    whileHover={{ scale: 1.015, y: -2 }}
+                    whileTap={{ scale: 0.985 }}
+                    onClick={handleGoogleLogin}
+                    disabled={isLoggingIn}
+                    className="w-full flex items-center justify-center gap-3.5 rounded-xl py-3.5 px-4 cursor-pointer font-semibold text-xs sm:text-sm transition-all"
+                    style={{
+                      background: "var(--bg-surface)",
+                      border: "1px solid var(--border-default)",
+                      color: "var(--text-primary)",
+                      boxShadow: "var(--glass-shadow)",
+                    }}
+                  >
+                    <img src={google} alt="Google" className="w-5 h-5 object-contain" />
+                    <span>{isLoggingIn ? "Menghubungkan..." : (isId ? "Masuk Otomatis dengan Google" : "Instant Sign In with Google")}</span>
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.015, y: -2 }}
+                    whileTap={{ scale: 0.985 }}
+                    onClick={handleGithubLogin}
+                    disabled={isLoggingIn}
+                    className="w-full flex items-center justify-center gap-3.5 rounded-xl py-3.5 px-4 cursor-pointer font-semibold text-xs sm:text-sm transition-all"
+                    style={{
+                      background: "var(--bg-surface)",
+                      border: "1px solid var(--border-default)",
+                      color: "var(--text-primary)",
+                      boxShadow: "var(--glass-shadow)",
+                    }}
+                  >
+                    <img src={github} alt="GitHub" className="w-5 h-5 object-contain" />
+                    <span>{isId ? "Lanjutkan dengan GitHub" : "Continue with GitHub"}</span>
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Status footer */}
+              <div className="pt-6 mt-6 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--text-muted)] font-mono">
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck size={13} className="text-[var(--accent)]" />
+                  <span>Persistent Session Enabled</span>
+                </span>
+                <span>{messages.length} Pesan Tersimpan</span>
+              </div>
+            </motion.div>
+
+            {/* Right: New Cybernetic Holographic Quantum Core */}
+            <div className="lg:col-span-5 flex justify-center items-center">
+              <CyberCore />
+            </div>
+          </div>
+        ) : (
+          /* ═════════════════════════════════════════════════════════════
+             STATE B: LOGGED IN — Full Glass Chat Console
+             ═════════════════════════════════════════════════════════════ */
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="w-full max-w-4xl mx-auto rounded-2xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden h-[80vh] sm:h-[75vh]"
             style={{
               background: "var(--bg-elevated)",
               border: "1px solid var(--border-default)",
               boxShadow: "var(--glass-shadow-elevated)",
             }}
           >
-            {/* Glass shimmer */}
             <div className="glass-shimmer rounded-t-2xl" />
 
-            {/* HEADER */}
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
-              <div className="text-center mb-5">
-                <h1 className="font-[Space_Grotesk] text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight">{t("chatPage.title")}</h1>
-                <p className="text-[var(--text-tertiary)] text-xs mt-1">{t("chatPage.subtitle")}</p>
-              </div>
-            </motion.div>
-
-            {/* AUTH CHECK */}
-            {!user ? (
-              /* ═══════════════ LOGIN ═══════════════ */
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.15 }} className="flex flex-col items-center gap-3 py-8">
-                <p className="text-xs text-[var(--text-tertiary)]">{t("chatPage.loginPrompt")}</p>
-
-                <motion.button
-                  whileHover={{ scale: 1.01, y: -1 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={loginWithGoogle}
-                  className="w-full flex items-center justify-center gap-3 rounded-xl py-3
-                    cursor-pointer group transition-all duration-200
-                    bg-[var(--bg-hover)] border border-[var(--border-subtle)] hover:border-[var(--border-hover)]"
-                >
-                  <img src={google} alt="google" width="18" height="18" decoding="async" className="w-[18px]" />
-                  <span className="text-sm font-medium text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">{t("chatPage.loginGoogle")}</span>
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.01, y: -1 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={loginWithGithub}
-                  className="w-full flex items-center justify-center gap-3 rounded-xl py-3
-                    cursor-pointer group transition-all duration-200
-                    bg-[var(--bg-hover)] border border-[var(--border-subtle)] hover:border-[var(--border-hover)]"
-                >
-                  <img src={github} alt="github" width="24" height="24" decoding="async" className="w-6" />
-                  <span className="text-sm font-medium text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">{t("chatPage.loginGithub")}</span>
-                </motion.button>
-              </motion.div>
-            ) : (
-              /* ═══════════════ CHAT ═══════════════ */
-              <>
-                {/* USER INFO & LOGOUT */}
-                <motion.div
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center justify-between mb-4 p-3 rounded-xl"
-                  style={{
-                    background: "var(--bg-hover)",
-                    border: "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="relative">
-                      <img
-                        src={user.photoURL}
-                        alt={`${user.displayName || "User"}'s Profile`}
-                        width="36"
-                        height="36"
-                        decoding="async"
-                        className="w-9 h-9 rounded-full border-2 border-[rgba(var(--accent-rgb),0.2)]"
-                        onError={(e) => {
-                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || "User")}&background=6366f1&color=fff&bold=true`;
-                        }}
-                      />
-                      <div className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-[var(--bg-elevated)]" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-[var(--text-primary)] text-sm">{user.displayName}</p>
-                      <p className="text-[10px] text-[var(--text-muted)] font-['JetBrains_Mono'] hidden sm:block">{user.email}</p>
-                    </div>
-                  </div>
-
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => signOut(auth)}
-                    className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--text-tertiary)] hover:text-red-400
-                      px-2.5 py-1.5 rounded-lg cursor-pointer bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-red-500/20 transition-all"
-                  >
-                    <LogOut size={13} />
-                    <span className="hidden sm:inline">{t("chatPage.logout")}</span>
-                  </motion.button>
-                </motion.div>
-
-                {/* CHAT WINDOW */}
-                <div
-                  className="rounded-xl p-3 h-[55vh] sm:h-[45vh] overflow-y-auto flex flex-col gap-2.5 mb-3"
-                  style={{
-                    background: "rgba(0, 0, 0, 0.15)",
-                    border: "1px solid var(--border-subtle)",
-                  }}
-                >
-                  {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)]">
-                      <i className="ri-chat-3-line text-2xl mb-2" />
-                      <p className="font-medium text-sm">{t("chatPage.noMessages")}</p>
-                      <p className="text-[10px] mt-1 text-[var(--text-muted)]">{t("chatPage.beFirst")}</p>
-                    </div>
-                  ) : (
-                    messages.map((msg) => {
-                      const isMe = msg.uid === user.uid;
-
-                      return (
-                        <motion.div
-                          key={msg.id}
-                          initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                          className={`flex gap-2 ${isMe ? "self-end flex-row-reverse items-end" : "self-start items-end"}`}
-                        >
-                          {msg.photo && (
-                            <img
-                              src={msg.photo}
-                              alt={`${msg.name}'s Profile`}
-                              width="24"
-                              height="24"
-                              decoding="async"
-                              className="w-6 h-6 rounded-full border border-[var(--border-subtle)] shrink-0"
-                            />
-                          )}
-
-                          <div
-                            className="px-3.5 py-2 rounded-xl max-w-[85%] text-[13px] leading-relaxed"
-                            style={
-                              isMe
-                                ? {
-                                    background: "var(--accent)",
-                                    color: "#000",
-                                    fontWeight: 600,
-                                    borderBottomRightRadius: "4px",
-                                    boxShadow: `0 2px 8px rgba(0,0,0,0.2)`,
-                                  }
-                                : {
-                                    background: "var(--bg-hover)",
-                                    color: "var(--text-secondary)",
-                                    border: "1px solid var(--border-subtle)",
-                                    borderBottomLeftRadius: "4px",
-                                  }
-                            }
-                          >
-                            {!isMe && <p className="text-[10px] text-[var(--accent)] font-semibold mb-0.5 opacity-80">{msg.name}</p>}
-                            <p className="whitespace-pre-wrap break-all">{msg.text}</p>
-                          </div>
-                        </motion.div>
-                      );
-                    })
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-
-                {/* INPUT BAR */}
-                <div className="flex gap-2">
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                      }
+            {/* Header User Bar */}
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)] shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName || "User"}
+                    className="w-9 h-9 rounded-full object-cover border-2 border-[var(--accent)] shadow-sm"
+                    onError={(e) => {
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || "U")}&background=FF6B35&color=fff&bold=true`;
                     }}
-                    placeholder={t("chatPage.placeholder")}
-                    rows={1}
-                    className="flex-1 rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)]
-                      resize-none focus:outline-none glass-input"
                   />
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={handleSend}
-                    type="button"
-                    disabled={!message.trim()}
-                    className="cursor-pointer rounded-xl px-4 font-semibold text-sm flex items-center justify-center
-                      gap-1.5 shrink-0 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
-                    style={{
-                      background: "var(--accent)",
-                      color: "#000",
-                    }}
-                  >
-                    <span className="hidden sm:inline">{t("chatPage.send")}</span>
-                    <Send size={14} />
-                  </motion.button>
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-[var(--bg-elevated)]" />
                 </div>
-              </>
-            )}
-          </div>
-        </div>
+                <div>
+                  <h2 className="font-[Space_Grotesk] font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
+                    {user.displayName || "Community Member"}
+                    <span className="text-[9px] font-mono px-2 py-0.2 rounded-full bg-[rgba(var(--accent-rgb),0.15)] text-[var(--accent)]">
+                      Active
+                    </span>
+                  </h2>
+                  <p className="text-[10px] text-[var(--text-muted)] font-mono">
+                    {user.email || "Guest Session (Persistent)"}
+                  </p>
+                </div>
+              </div>
 
-        {/* ORB (ONLY WHEN NOT LOGIN) */}
-        {!user && (
-          <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <div className="w-full max-w-sm lg:max-w-md">
-              <Orb />
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => signOut(auth)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[var(--text-tertiary)] hover:text-red-400 bg-[var(--bg-hover)] border border-[var(--border-subtle)] hover:border-red-500/20 transition-all cursor-pointer"
+                >
+                  <LogOut size={13} />
+                  <span className="hidden sm:inline">{isId ? "Keluar" : "Log out"}</span>
+                </motion.button>
+              </div>
             </div>
-          </div>
+
+            {/* Message Stream */}
+            <div className="flex-1 overflow-y-auto py-4 space-y-3 pr-1">
+              {messages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center text-[var(--text-muted)] space-y-2">
+                  <MessageSquare size={32} className="text-[var(--accent)] opacity-60 animate-bounce" />
+                  <p className="font-semibold text-sm text-[var(--text-primary)]">
+                    {isId ? "Belum Ada Pesan" : "No Messages Yet"}
+                  </p>
+                  <p className="text-xs text-[var(--text-secondary)] max-w-xs">
+                    {isId ? "Jadilah yang pertama menyapa Bilal atau tinggalkan pesan di ruang diskusi!" : "Be the first to say hello or leave a note in the chat!"}
+                  </p>
+                </div>
+              ) : (
+                messages.map((msg) => {
+                  const isMe = msg.uid === user.uid;
+                  return (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`flex gap-2.5 ${isMe ? "justify-end" : "justify-start"}`}
+                    >
+                      {!isMe && (
+                        <img
+                          src={msg.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(msg.name || "U")}&background=FF6B35&color=fff`}
+                          alt={msg.name}
+                          className="w-7 h-7 rounded-full object-cover shrink-0 mt-1 border border-[var(--border-subtle)]"
+                        />
+                      )}
+
+                      <div
+                        className="group relative max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 text-xs sm:text-sm leading-relaxed"
+                        style={
+                          isMe
+                            ? {
+                                background: "var(--accent)",
+                                color: "#000",
+                                fontWeight: 500,
+                                borderBottomRightRadius: "4px",
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                              }
+                            : {
+                                background: "var(--bg-hover)",
+                                color: "var(--text-primary)",
+                                border: "1px solid var(--border-subtle)",
+                                borderBottomLeftRadius: "4px",
+                              }
+                        }
+                      >
+                        {!isMe && (
+                          <div className="flex items-center justify-between gap-3 mb-1">
+                            <span className="font-bold text-[11px] text-[var(--accent)]">
+                              {msg.name}
+                            </span>
+                          </div>
+                        )}
+
+                        <p className="whitespace-pre-wrap break-words">{msg.text}</p>
+
+                        {/* Copy button on hover */}
+                        <button
+                          type="button"
+                          onClick={() => handleCopyMessage(msg.id, msg.text)}
+                          className={`absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded ${
+                            isMe ? "hover:bg-black/15 text-black" : "hover:bg-white/10 text-[var(--text-muted)]"
+                          }`}
+                          title="Copy text"
+                        >
+                          {copiedId === msg.id ? <Check size={11} /> : <Copy size={11} />}
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Quick Prompt Chips */}
+            <div className="py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+              <span className="text-[10px] font-mono text-[var(--text-muted)] shrink-0 flex items-center gap-1">
+                <Sparkles size={11} className="text-[var(--accent)]" />
+                {isId ? "Saran:" : "Prompts:"}
+              </span>
+              {quickPrompts.map((prompt, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setMessage(prompt)}
+                  className="shrink-0 text-[11px] px-2.5 py-1 rounded-full bg-[var(--bg-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)] transition-all cursor-pointer truncate max-w-[220px]"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Bar */}
+            <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-subtle)] shrink-0">
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                rows={1}
+                placeholder={isId ? "Tulis pesan di sini... (Enter untuk kirim)" : "Write your message... (Enter to send)"}
+                className="flex-1 glass-input rounded-xl px-4 py-2.5 text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none focus:outline-none"
+              />
+
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={handleSend}
+                disabled={!message.trim()}
+                type="button"
+                className="h-10 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-35 disabled:cursor-not-allowed transition-all shrink-0"
+                style={{
+                  background: "var(--accent)",
+                  color: "#000",
+                }}
+              >
+                <span className="hidden sm:inline">{isId ? "Kirim" : "Send"}</span>
+                <Send size={14} />
+              </motion.button>
+            </div>
+          </motion.div>
         )}
       </div>
     </section>

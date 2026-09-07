@@ -1,6 +1,7 @@
-import avatar2 from "../assets/avatar2.webp";
+import bilal_avatar from "../assets/cards/bilal_avatar.webp";
 import { useLanguage } from "../context/LanguageContext";
 import LanguageToggle from "./LanguageToggle";
+import ThemeComboToggle from "./ThemeComboToggle";
 import { motion } from "motion/react";
 
 const navItems = [
@@ -14,14 +15,14 @@ const navItems = [
 ];
 
 const themeColors = [
-  { name: "emerald", class: "bg-emerald-500", glow: "rgba(16, 185, 129, 0.5)" },
-  { name: "sky", class: "bg-sky-500", glow: "rgba(2, 132, 199, 0.5)" },
-  { name: "violet", class: "bg-violet-500", glow: "rgba(139, 92, 246, 0.5)" },
-  { name: "amber", class: "bg-amber-300", glow: "rgba(253, 224, 71, 0.5)" },
-  { name: "red", class: "bg-red-500", glow: "rgba(239, 68, 68, 0.5)" },
+  { name: "tangerine", class: "bg-[#FF6B35]", glow: "rgba(255, 107, 53, 0.6)" },
+  { name: "turquoise", class: "bg-[#00F5D4]", glow: "rgba(0, 245, 212, 0.6)" },
+  { name: "fuchsia", class: "bg-[#F72585]", glow: "rgba(247, 37, 133, 0.6)" },
+  { name: "bronze", class: "bg-[#E2B870]", glow: "rgba(226, 184, 112, 0.6)" },
+  { name: "indigo", class: "bg-[#6366F1]", glow: "rgba(99, 102, 241, 0.6)" },
 ];
 
-const Sidebar = ({ setActivePage, activePage, activeColor, setActiveColor, isOpen, setIsOpen }) => {
+const Sidebar = ({ setActivePage, activePage, activeColor, setActiveColor, isOpen, setIsOpen, colorCombo, setColorCombo }) => {
   const { t } = useLanguage();
 
   return (
@@ -55,7 +56,7 @@ const Sidebar = ({ setActivePage, activePage, activeColor, setActiveColor, isOpe
           >
             <div className="relative inline-flex items-center justify-center p-0.5 rounded-full border border-[var(--border-hover)] transition-all duration-300 group-hover:scale-105 group-hover:border-[rgba(var(--accent-rgb),0.3)]">
               <img
-                src={avatar2}
+                src={bilal_avatar}
                 alt="Bilal Mayor Abdillah Profile"
                 width="56"
                 height="56"
@@ -73,10 +74,19 @@ const Sidebar = ({ setActivePage, activePage, activeColor, setActiveColor, isOpe
           {/* Status indicator */}
           <div className="flex items-center justify-center gap-1.5 mt-2">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+              <span
+                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                style={{ background: "var(--accent)" }}
+              />
+              <span
+                className="relative inline-flex rounded-full h-1.5 w-1.5"
+                style={{ background: "var(--accent)" }}
+              />
             </span>
-            <span className="text-[10px] text-emerald-400/70 font-medium tracking-wide">
+            <span
+              className="text-[10px] font-medium tracking-wide"
+              style={{ color: "var(--accent)", opacity: 0.85 }}
+            >
               Available
             </span>
           </div>
@@ -147,7 +157,7 @@ const Sidebar = ({ setActivePage, activePage, activeColor, setActiveColor, isOpe
                 whileTap={{ scale: 0.85 }}
                 className={`w-4 h-4 rounded-full ${bg} cursor-pointer transition-all duration-300
                   ${activeColor === name
-                    ? "ring-2 ring-white/80 ring-offset-1 ring-offset-[var(--bg-elevated)]"
+                    ? "ring-2 ring-[var(--text-primary)] ring-offset-1 ring-offset-[var(--bg-elevated)]"
                     : "opacity-40 hover:opacity-80"}`}
                 style={{
                   boxShadow: activeColor === name ? `0 0 12px ${glow}` : "none",
@@ -155,8 +165,9 @@ const Sidebar = ({ setActivePage, activePage, activeColor, setActiveColor, isOpe
               />
             ))}
           </div>
-          {/* Language toggle in sidebar on mobile */}
-          <div className="flex justify-center lg:hidden pt-1">
+          {/* Theme combo & Language toggle in sidebar on mobile */}
+          <div className="flex items-center justify-center gap-2 lg:hidden pt-1">
+            <ThemeComboToggle colorCombo={colorCombo} setColorCombo={setColorCombo} />
             <LanguageToggle />
           </div>
         </div>

@@ -17,7 +17,8 @@ import {
   Sparkles,
   ArrowRight,
   AlertTriangle,
-  Code2
+  Code2,
+  Briefcase
 } from "lucide-react";
 import DecryptedText from "./ui/DecryptedText";
 import { useLanguage } from "../context/LanguageContext";
@@ -28,6 +29,8 @@ export default function CommandPalette({
   setActivePage,
   setActiveColor,
   activeColor,
+  colorCombo,
+  setColorCombo,
 }) {
   const { language, toggleLanguage } = useLanguage();
   const [query, setQuery] = useState("");
@@ -137,10 +140,10 @@ export default function CommandPalette({
     {
       id: "nav-contact",
       title: "Go to Contact",
-      desc: "Get in touch via Gmail, GitHub, or LinkedIn",
+      desc: "Get in touch via WhatsApp, Gmail, GitHub, or LinkedIn",
       category: "Navigation",
-      keywords: ["contact", "kontak", "email", "reach", "goto contact"],
-      icon: <ArrowRight size={15} className="text-teal-400" />,
+      keywords: ["contact", "kontak", "whatsapp", "email", "reach", "goto contact"],
+      icon: <Globe size={15} className="text-emerald-400" />,
       action: () => {
         setActivePage("kontak");
         onClose();
@@ -149,10 +152,10 @@ export default function CommandPalette({
     },
     {
       id: "nav-chat",
-      title: "Go to Chat Room",
-      desc: "Open public interactive chat and guestbook",
+      title: "Go to Chat Space",
+      desc: "Connect with the community and leave messages",
       category: "Navigation",
-      keywords: ["chat", "pesan", "room", "guestbook", "goto chat"],
+      keywords: ["chat", "pesan", "komunitas", "community", "goto chat"],
       icon: <Terminal size={15} className="text-indigo-400" />,
       action: () => {
         setActivePage("chat");
@@ -163,63 +166,87 @@ export default function CommandPalette({
 
     // Themes
     {
-      id: "theme-emerald",
-      title: "Set Theme: Emerald",
-      desc: "Switch accent color to Emerald Green",
+      id: "theme-tangerine",
+      title: "Set Theme: Solar Tangerine",
+      desc: "Switch accent color to Solar Tangerine (#FF6B35)",
       category: "Theme",
-      keywords: ["theme emerald", "color green", "emerald", "hijau"],
-      icon: <Palette size={15} className="text-emerald-400" />,
+      keywords: ["theme tangerine", "color orange", "tangerine", "orange", "oranye"],
+      icon: <Palette size={15} className="text-[#FF6B35]" />,
       action: () => {
-        setActiveColor("emerald");
-        showToast("Theme switched to Emerald");
+        setActiveColor("tangerine");
+        showToast("Theme switched to Tangerine");
       },
     },
     {
-      id: "theme-sky",
-      title: "Set Theme: Sky Blue",
-      desc: "Switch accent color to Sky Blue",
+      id: "theme-turquoise",
+      title: "Set Theme: Cyber Turquoise",
+      desc: "Switch accent color to Cyber Turquoise (#00F5D4)",
       category: "Theme",
-      keywords: ["theme sky", "color blue", "sky", "biru"],
-      icon: <Palette size={15} className="text-sky-400" />,
+      keywords: ["theme turquoise", "color turquoise", "turquoise", "mint", "aqua"],
+      icon: <Palette size={15} className="text-[#00F5D4]" />,
       action: () => {
-        setActiveColor("sky");
-        showToast("Theme switched to Sky");
+        setActiveColor("turquoise");
+        showToast("Theme switched to Turquoise");
       },
     },
     {
-      id: "theme-violet",
-      title: "Set Theme: Violet",
-      desc: "Switch accent color to Electric Violet",
+      id: "theme-fuchsia",
+      title: "Set Theme: Electric Fuchsia",
+      desc: "Switch accent color to Electric Fuchsia (#F72585)",
       category: "Theme",
-      keywords: ["theme violet", "color purple", "violet", "ungu"],
-      icon: <Palette size={15} className="text-violet-400" />,
+      keywords: ["theme fuchsia", "color magenta", "fuchsia", "pink", "magenta"],
+      icon: <Palette size={15} className="text-[#F72585]" />,
       action: () => {
-        setActiveColor("violet");
-        showToast("Theme switched to Violet");
+        setActiveColor("fuchsia");
+        showToast("Theme switched to Fuchsia");
       },
     },
     {
-      id: "theme-amber",
-      title: "Set Theme: Amber Gold",
-      desc: "Switch accent color to Amber Gold",
+      id: "theme-bronze",
+      title: "Set Theme: Champagne Bronze",
+      desc: "Switch accent color to Champagne Bronze (#E2B870)",
       category: "Theme",
-      keywords: ["theme amber", "color yellow", "amber", "kuning"],
-      icon: <Palette size={15} className="text-amber-300" />,
+      keywords: ["theme bronze", "color gold", "bronze", "champagne", "gold"],
+      icon: <Palette size={15} className="text-[#E2B870]" />,
       action: () => {
-        setActiveColor("amber");
-        showToast("Theme switched to Amber");
+        setActiveColor("bronze");
+        showToast("Theme switched to Bronze");
       },
     },
     {
-      id: "theme-red",
-      title: "Set Theme: Crimson Red",
-      desc: "Switch accent color to Crimson Red",
+      id: "theme-indigo",
+      title: "Set Theme: Royal Indigo",
+      desc: "Switch accent color to Royal Indigo (#6366F1)",
       category: "Theme",
-      keywords: ["theme red", "color red", "red", "merah"],
-      icon: <Palette size={15} className="text-red-400" />,
+      keywords: ["theme indigo", "color indigo", "indigo", "periwinkle", "purple"],
+      icon: <Palette size={15} className="text-[#6366F1]" />,
       action: () => {
-        setActiveColor("red");
-        showToast("Theme switched to Red");
+        setActiveColor("indigo");
+        showToast("Theme switched to Indigo");
+      },
+    },
+    {
+      id: "combo-1",
+      title: "Set Kombinasi Warna: 1 (Dark Obsidian)",
+      desc: "Switch to original Warm Obsidian dark theme",
+      category: "Theme",
+      keywords: ["kombinasi 1", "combo 1", "theme 1", "dark", "warna 1", "hitam", "obsidian"],
+      icon: <Palette size={15} className="text-zinc-400" />,
+      action: () => {
+        setColorCombo?.("1");
+        showToast("Switched to Warna Kombinasi 1 (Dark Obsidian)");
+      },
+    },
+    {
+      id: "combo-2",
+      title: "Set Kombinasi Warna: 2 (Putih Cerah & #131312)",
+      desc: "Switch to Putih Cerah Cahaya with Hitam #131312 text",
+      category: "Theme",
+      keywords: ["kombinasi 2", "combo 2", "theme 2", "light", "warna 2", "putih", "white", "131312"],
+      icon: <Palette size={15} className="text-amber-400" />,
+      action: () => {
+        setColorCombo?.("2");
+        showToast("Switched to Warna Kombinasi 2 (Putih Cerah & Hitam #131312)");
       },
     },
 
@@ -304,6 +331,7 @@ export default function CommandPalette({
   const COMMAND_REFERENCE = {
     valid: [
       { cmd: "help / commands / ?", desc: "Show complete list of all supported commands" },
+      { cmd: "combo 1 / combo 2", desc: "Switch color combo: 1 (Dark Obsidian) or 2 (Putih Cerah & Hitam #131312)" },
       { cmd: "whoami", desc: "Display developer bio, school, and current stack" },
       { cmd: "run test / test qa", desc: "Execute simulated automated Software QA test suite" },
       { cmd: "goto [page]", desc: "Navigate to: about, projects, skills, achievements, gallery, contact, chat" },
@@ -351,7 +379,7 @@ export default function CommandPalette({
     if (lower === "help" || lower === "commands" || lower === "?") {
       newLogs.push({
         type: "output",
-        text: `📋 AVAILABLE COMMANDS:\n  • whoami          : Developer summary & credentials\n  • run test        : Run automated QA test simulations\n  • goto [page]     : about, projects, skills, achievements, gallery, contact, chat\n  • theme [color]   : emerald, sky, violet, amber, red\n  • copy email      : Copy email to clipboard\n  • github/linkedin : Open external profiles\n  • lang [id|en]    : Toggle language\n  • sudo hire-me    : Recruiter fast-track easter egg\n  • echo [msg]      : Echo back string\n  • clear           : Clear console`,
+        text: `📋 AVAILABLE COMMANDS:\n  • whoami          : Developer summary & credentials\n  • run test        : Run automated QA test simulations\n  • combo [1|2]     : Switch between Warna Kombinasi 1 (Dark) & Warna Kombinasi 2 (Putih Cerah)\n  • goto [page]     : about, projects, skills, achievements, gallery, contact, chat\n  • theme [color]   : emerald, sky, violet, amber, red\n  • copy email      : Copy email to clipboard\n  • github/linkedin : Open external profiles\n  • lang [id|en]    : Toggle language\n  • sudo hire-me    : Recruiter fast-track easter egg\n  • echo [msg]      : Echo back string\n  • clear           : Clear console`,
       });
     } else if (lower === "whoami") {
       newLogs.push({
@@ -393,16 +421,45 @@ export default function CommandPalette({
       }
     } else if (lower.startsWith("theme ")) {
       const color = lower.replace("theme ", "").trim();
-      if (["emerald", "sky", "violet", "amber", "red"].includes(color)) {
+      if (["tangerine", "turquoise", "fuchsia", "bronze", "indigo"].includes(color)) {
         setActiveColor(color);
         newLogs.push({ type: "success", text: `🎨 Theme accent color changed to '${color}'.` });
         showToast(`Theme changed to ${color}`);
       } else {
         newLogs.push({
           type: "error",
-          text: `❌ Invalid theme '${color}'. Supported: emerald, sky, violet, amber, red`,
+          text: `❌ Invalid theme '${color}'. Supported: tangerine, turquoise, fuchsia, bronze, indigo`,
         });
       }
+    } else if (
+      lower === "combo 1" ||
+      lower === "kombinasi 1" ||
+      lower === "warna 1" ||
+      lower === "theme 1" ||
+      lower === "dark" ||
+      lower === "obsidian"
+    ) {
+      setColorCombo?.("1");
+      newLogs.push({
+        type: "success",
+        text: `🌑 Kombinasi warna diubah ke: 'Warna Kombinasi 1' (Dark Obsidian Cinematic).\n  • Canvas: #08080C\n  • Surface: #0F0F14\n  • Text Primary: #F0F0F3\n  • Status: Preserved & Active.`,
+      });
+      showToast("Warna Kombinasi 1 Aktif (Dark Obsidian)");
+    } else if (
+      lower === "combo 2" ||
+      lower === "kombinasi 2" ||
+      lower === "warna 2" ||
+      lower === "theme 2" ||
+      lower === "light" ||
+      lower === "putih" ||
+      lower === "white"
+    ) {
+      setColorCombo?.("2");
+      newLogs.push({
+        type: "success",
+        text: `☀️ Kombinasi warna diubah ke: 'Warna Kombinasi 2' (Putih Cerah Cahaya & Hitam #131312).\n  • Canvas: #FFFFFF (Putih Cerah Cahaya)\n  • Surface: #FFFFFF\n  • Text Primary: #131312 (Hitam Presisi)\n  • Status: Active.`,
+      });
+      showToast("Warna Kombinasi 2 Aktif (Putih Cerah & Hitam #131312)");
     } else if (lower === "copy email" || lower === "email") {
       navigator.clipboard.writeText("bilalmayorab@gmail.com");
       newLogs.push({ type: "success", text: `📋 Copied 'bilalmayorab@gmail.com' to your clipboard.` });
@@ -494,10 +551,10 @@ export default function CommandPalette({
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
           className="relative w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl flex flex-col font-sans z-10"
           style={{
-            background: "rgba(14, 14, 18, 0.92)",
+            background: "var(--bg-elevated)",
             backdropFilter: "blur(32px) saturate(180%)",
             border: "1px solid var(--border-default)",
-            boxShadow: "0 24px 70px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1)",
+            boxShadow: "var(--shell-shadow)",
           }}
           onKeyDown={handleKeyDown}
         >
@@ -651,7 +708,7 @@ export default function CommandPalette({
                           </div>
                           <div className="min-w-0 text-left">
                             <div className="flex items-center gap-2">
-                              <span className={`text-xs sm:text-sm font-medium ${isSelected ? "text-white" : "text-[var(--text-primary)]"}`}>
+                              <span className="text-xs sm:text-sm font-semibold text-[var(--text-primary)]">
                                 <DecryptedText
                                   text={item.title}
                                   speed={30}

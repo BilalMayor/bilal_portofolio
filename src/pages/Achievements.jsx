@@ -102,24 +102,23 @@ const Achievements = () => {
           >
             <SpotlightCard
               spotlightColor="rgba(var(--accent-rgb), 0.15)"
-              className="rounded-xl overflow-hidden h-full border border-[var(--border-subtle)] hover:border-[rgba(var(--accent-rgb),0.2)] transition-all duration-300 relative"
+              className="rounded-2xl overflow-hidden h-full border border-[var(--border-default)] hover:border-[rgba(var(--accent-rgb),0.3)] transition-all duration-300 relative shadow-xs hover:shadow-md"
               style={{
                 background: "var(--bg-elevated)",
               }}
             >
               {/* Glass shimmer */}
-              <div className="glass-shimmer rounded-t-xl" />
+              <div className="glass-shimmer rounded-t-2xl" />
 
               {/* IMAGE CONTAINER */}
-              <div className="relative w-full overflow-hidden aspect-video border-b border-[var(--border-subtle)]" style={{ background: "rgba(0,0,0,0.2)" }}>
+              <div className="relative w-full overflow-hidden aspect-video border-b border-[var(--border-subtle)] flex items-center justify-center p-2 bg-[var(--bg-hover)]">
                 <img
                   src={item.image}
                   alt={item.title}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-contain rounded-lg transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
               </div>
 
               {/* CONTENT */}
@@ -136,7 +135,7 @@ const Achievements = () => {
                     ))}
                   </div>
                 </div>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-2">{item.description}</p>
+                <p className="text-xs text-[var(--text-secondary)] font-medium leading-relaxed line-clamp-2">{item.description}</p>
               </div>
             </SpotlightCard>
           </motion.div>
@@ -183,13 +182,13 @@ const Achievements = () => {
               {/* Image */}
               <div
                 className="w-full h-[28vh] sm:h-[38vh] shrink-0 relative flex items-center justify-center p-4 sm:p-8 border-b border-[var(--border-subtle)] overflow-hidden"
-                style={{ background: "rgba(0, 0, 0, 0.2)" }}
+                style={{ background: "var(--bg-hover)" }}
               >
                 <img
                   src={selectedAchievement.image}
                   alt={selectedAchievement.title}
                   decoding="async"
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl relative z-10 border border-[var(--border-default)]"
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-xl relative z-10 border border-[var(--border-default)]"
                 />
               </div>
 
@@ -209,7 +208,7 @@ const Achievements = () => {
 
                 <div className="h-px w-full bg-[var(--border-subtle)] my-3" />
 
-                <p className="text-[var(--text-secondary)] leading-relaxed text-sm whitespace-pre-wrap">
+                <p className="text-[var(--text-secondary)] font-medium leading-relaxed text-sm sm:text-base whitespace-pre-wrap">
                   {selectedAchievement.description}
                 </p>
               </div>

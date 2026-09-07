@@ -3,6 +3,59 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Bot, Loader2, Trash2, Sparkles } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
+const AiCoreIcon = ({ size = 26, className = "" }) => (
+  <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
+    {/* Outer orbital ring */}
+    <motion.svg
+      viewBox="0 0 40 40"
+      className="absolute inset-0 w-full h-full"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+    >
+      <circle
+        cx="20"
+        cy="20"
+        r="17"
+        fill="none"
+        stroke="var(--accent)"
+        strokeWidth="1.5"
+        strokeDasharray="4 6"
+        opacity="0.65"
+      />
+      <circle cx="20" cy="3" r="2" fill="var(--accent)" />
+    </motion.svg>
+    {/* Inner counter-rotating ring */}
+    <motion.svg
+      viewBox="0 0 30 30"
+      className="absolute w-[75%] h-[75%]"
+      animate={{ rotate: -360 }}
+      transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
+    >
+      <circle
+        cx="15"
+        cy="15"
+        r="11"
+        fill="none"
+        stroke="var(--accent)"
+        strokeWidth="1.2"
+        strokeDasharray="2 4"
+        opacity="0.85"
+      />
+      <circle cx="15" cy="4" r="1.5" fill="var(--accent)" />
+    </motion.svg>
+    {/* Central Pulsing Quantum Core */}
+    <motion.div
+      animate={{ scale: [0.85, 1.15, 0.85], opacity: [0.8, 1, 0.8] }}
+      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+      className="relative z-10 w-2.5 h-2.5 rounded-full"
+      style={{
+        background: "var(--accent)",
+        boxShadow: "0 0 10px var(--accent)",
+      }}
+    />
+  </div>
+);
+
 const parseInlineFormatting = (text) => {
   if (!text) return [];
 
@@ -287,20 +340,26 @@ const ChatBot = () => {
                       boxShadow: "inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 12px rgba(0,0,0,0.3)",
                     }}
                   >
-                    <Bot size={22} className="text-(--accent)" />
+                    <AiCoreIcon size={22} />
                   </div>
                   <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-zinc-950"></span>
+                    <span
+                      className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                      style={{ background: "var(--accent)" }}
+                    />
+                    <span
+                      className="relative inline-flex rounded-full h-3 w-3 border-2 border-[var(--bg-deep)]"
+                      style={{ background: "var(--accent)" }}
+                    />
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-zinc-100 flex items-center gap-1.5">
+                  <h3 className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-1.5">
                     {t('bot.headerTitle')}
                     <Sparkles size={13} className="text-(--accent) animate-pulse" />
                   </h3>
-                  <span className="text-[11px] text-zinc-400 font-mono flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span className="text-[11px] text-[var(--text-secondary)] font-mono flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
                     {t('bot.poweredBy')}
                   </span>
                 </div>
@@ -473,13 +532,13 @@ const ChatBot = () => {
               exit={{ opacity: 0, x: 12, scale: 0.9 }}
               transition={{ duration: 0.3 }}
               onClick={toggleChat}
-              className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-full cursor-pointer text-xs font-semibold text-zinc-200 hover:text-white transition-all"
+              className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-full cursor-pointer text-xs font-semibold text-[var(--text-primary)] transition-all"
               style={{
-                background: "rgba(18, 18, 22, 0.72)",
+                background: "var(--glass-bg)",
                 backdropFilter: "blur(20px) saturate(160%)",
                 WebkitBackdropFilter: "blur(20px) saturate(160%)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.10)",
+                border: "1px solid var(--border-default)",
+                boxShadow: "var(--glass-shadow)",
               }}
             >
               <Sparkles size={14} className="text-(--accent) animate-pulse" />
@@ -495,11 +554,11 @@ const ChatBot = () => {
           aria-label={t('bot.triggerAria')}
           className="relative w-14 h-14 rounded-2xl flex items-center justify-center cursor-pointer transition-all duration-300 group overflow-visible"
           style={{
-            background: "rgba(18, 18, 22, 0.78)",
+            background: "var(--bg-elevated)",
             backdropFilter: "blur(24px) saturate(180%)",
             WebkitBackdropFilter: "blur(24px) saturate(180%)",
-            border: "1px solid rgba(255,255,255,0.13)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12)",
+            border: "1px solid var(--border-default)",
+            boxShadow: "var(--glass-shadow-elevated)",
           }}
         >
           {/* Pulse ring — only when closed */}
@@ -525,7 +584,7 @@ const ChatBot = () => {
                 exit={{ rotate: 90, scale: 0.5, opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <X size={24} className="text-zinc-200 group-hover:text-white" />
+                <X size={24} className="text-[var(--text-primary)] group-hover:opacity-80" />
               </motion.div>
             ) : (
               <motion.div
@@ -534,14 +593,20 @@ const ChatBot = () => {
                 animate={{ rotate: 0, scale: 1, opacity: 1 }}
                 exit={{ rotate: -90, scale: 0.5, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="relative flex items-center justify-center"
+                className="relative flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
               >
-                <Bot size={26} className="text-[var(--accent)] group-hover:scale-110 transition-transform duration-300" />
+                <AiCoreIcon size={28} />
 
-                {/* Glowing status online dot */}
+                {/* Glowing status online dot matching theme accent */}
                 <span className="absolute -top-2.5 -right-2.5 flex h-3.5 w-3.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-zinc-900"></span>
+                  <span
+                    className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                    style={{ background: "var(--accent)" }}
+                  />
+                  <span
+                    className="relative inline-flex rounded-full h-3.5 w-3.5 border-2 border-[var(--bg-deep)]"
+                    style={{ background: "var(--accent)" }}
+                  />
                 </span>
               </motion.div>
             )}

@@ -1,5 +1,6 @@
 import { useLanguage } from "../context/LanguageContext";
 import LanguageToggle from "./LanguageToggle";
+import ThemeComboToggle from "./ThemeComboToggle";
 import { motion, AnimatePresence } from "motion/react";
 import { Terminal, Command } from "lucide-react";
 
@@ -13,7 +14,7 @@ const pageIcons = {
   chat: "ri-chat-3-line",
 };
 
-const Topbar = ({ activePage, setIsSidebarOpen, onOpenCommandPalette }) => {
+const Topbar = ({ activePage, setIsSidebarOpen, onOpenCommandPalette, colorCombo, setColorCombo }) => {
   const { t } = useLanguage();
   const pageTitle = t(`nav.${activePage}`) || activePage;
   const pageIcon = pageIcons[activePage] || "ri-pages-line";
@@ -63,7 +64,7 @@ const Topbar = ({ activePage, setIsSidebarOpen, onOpenCommandPalette }) => {
         </div>
       </div>
 
-      {/* Right side — Command Center trigger + Language toggle */}
+      {/* Right side — Command Center trigger + Theme Combo Toggle + Language toggle */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Quick Command Launcher Button */}
         <motion.button
@@ -82,6 +83,9 @@ const Topbar = ({ activePage, setIsSidebarOpen, onOpenCommandPalette }) => {
             <span>K</span>
           </span>
         </motion.button>
+
+        {/* Color Combo Toggle Button (Kombinasi 1 / Kombinasi 2) */}
+        <ThemeComboToggle colorCombo={colorCombo} setColorCombo={setColorCombo} />
 
         <div className="hidden lg:flex items-center">
           <LanguageToggle />

@@ -17,7 +17,7 @@ export const translations = {
     themeAria: "Pilih warna tema",
     sidebarAvatarAria: "Navigasi ke halaman Tentang",
     about: {
-      greeting: "Hi 👋, I'm Bilal Mayor Abdillah",
+      greeting: "Hello! I’m Bilal Mayor Abdillah 😊",
       roles: ["Frontend Developer", "Software Quality Assurance", "Web Developer"],
       bio: "Siswa Software Engineering yang berfokus pada Frontend Development dan Software Quality Assurance. Saya senang membangun website yang modern, responsif, dan nyaman digunakan, sekaligus terus mengembangkan kemampuan dalam teknologi dan software testing.",
       follow: "Follow me",
@@ -78,6 +78,19 @@ export const translations = {
     skills: {
       title: "Keahlian Saya",
       subtitle: "Teknologi dan tools yang saya gunakan untuk membangun aplikasi web modern.",
+      viewMode: "Mode Tampilan",
+      orbitMode: "3D Orbit Cluster",
+      bentoMode: "Bento Grid",
+      dragHint: "Tarik untuk memutar 360° • Scroll zoom • Klik node untuk inspeksi detail",
+      resetView: "Reset Sudut Pandang",
+      autoRotateOn: "Jeda Orbit",
+      autoRotateOff: "Putar Orbit",
+      inspectorTitle: "Inspeksi Teknologi",
+      proficiencyLevel: "Tingkat Penguasaan",
+      practicalExperience: "Implementasi & Pengalaman Nyata",
+      appliedInProjects: "Diterapkan Pada Proyek",
+      verifiedBadge: "QA & Clean Code Verified",
+      closeInspector: "Tutup Inspeksi",
     },
     achievements: {
       title: "Pencapaian & Sertifikasi",
@@ -131,7 +144,7 @@ export const translations = {
     },
     contact: {
       title: "Hubungi Saya",
-      subtitle: "Silakan hubungi saya melalui platform berikut",
+      subtitle: "Informasi saluran komunikasi dan profil profesional saya",
     },
     chatPage: {
       title: "Ruang Chat",
@@ -161,7 +174,7 @@ export const translations = {
       ],
       placeholder: "Tanya tentang skill, repo, atau proyek...",
       sendAria: "Kirim pesan",
-      triggerTooltip: "Tanya AI Bilal",
+      triggerTooltip: "Bilal AI Copilot",
       triggerAria: "Buka AI Assistant Chatbot",
     },
   },
@@ -179,7 +192,7 @@ export const translations = {
     themeAria: "Select theme color",
     sidebarAvatarAria: "Navigate to About page",
     about: {
-      greeting: "Hi 👋, I'm Bilal Mayor Abdillah",
+      greeting: "Hello! I’m Bilal Mayor Abdillah 😊",
       roles: ["Frontend Developer", "Software Quality Assurance", "Web Developer"],
       bio: "Software Engineering student focusing on Frontend Development and Software Quality Assurance. I enjoy building modern, responsive, and user-friendly websites, while continuously advancing my skills in technology and software testing.",
       follow: "Follow me",
@@ -240,6 +253,19 @@ export const translations = {
     skills: {
       title: "My Skills",
       subtitle: "Technologies and tools I use to build modern web applications.",
+      viewMode: "View Mode",
+      orbitMode: "3D Orbit Cluster",
+      bentoMode: "Bento Grid",
+      dragHint: "Drag to rotate 360° • Scroll zoom • Click node to inspect details",
+      resetView: "Reset Camera View",
+      autoRotateOn: "Pause Orbit",
+      autoRotateOff: "Resume Orbit",
+      inspectorTitle: "Technology Inspector",
+      proficiencyLevel: "Proficiency Level",
+      practicalExperience: "Practical Implementation",
+      appliedInProjects: "Demonstrated In Projects",
+      verifiedBadge: "QA & Clean Code Verified",
+      closeInspector: "Close Inspector",
     },
     achievements: {
       title: "Achievements & Certifications",
@@ -293,7 +319,7 @@ export const translations = {
     },
     contact: {
       title: "Contact Me",
-      subtitle: "Feel free to reach out to me on the following platforms",
+      subtitle: "My communication channels and professional profiles",
     },
     chatPage: {
       title: "Chat Room",
@@ -323,7 +349,7 @@ export const translations = {
       ],
       placeholder: "Ask about skills, repos, or projects...",
       sendAria: "Send message",
-      triggerTooltip: "Ask Bilal AI",
+      triggerTooltip: "Bilal AI Copilot",
       triggerAria: "Open AI Assistant Chatbot",
     },
   },

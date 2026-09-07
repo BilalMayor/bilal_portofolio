@@ -1,53 +1,34 @@
 import { useState } from "react";
+import { motion } from "motion/react";
+import { useLanguage } from "../context/LanguageContext";
+import {
+  MessageCircle,
+  Mail,
+  Copy,
+  Check,
+  ArrowUpRight,
+  ExternalLink,
+  MapPin,
+  Sparkles
+} from "lucide-react";
 import gmail from "../assets/cards/gmail.webp";
 import instagram from "../assets/cards/instagram.webp";
 import github from "../assets/cards/github.webp";
 import linkedin from "../assets/cards/linkedin.webp";
-import { motion } from "motion/react";
-import { useLanguage } from "../context/LanguageContext";
-import { Check, Copy, ArrowUpRight } from "lucide-react";
-
-const socials = [
-  {
-    name: "Gmail",
-    value: "bilalmayorab@gmail.com",
-    href: "mailto:bilalmayorab@gmail.com",
-    icon: gmail,
-    copyable: true,
-    description: "Primary email",
-  },
-  {
-    name: "Instagram",
-    value: "@bilal.mayor",
-    href: "https://www.instagram.com/bilal.mayor",
-    icon: instagram,
-    description: "Personal feed",
-  },
-  {
-    name: "GitHub",
-    value: "github.com/BilalMayor",
-    href: "https://github.com/BilalMayor",
-    icon: github,
-    description: "Code & projects",
-  },
-  {
-    name: "LinkedIn",
-    value: "in/bilal-abdillah-549143422",
-    href: "https://www.linkedin.com/in/bilal-abdillah-549143422",
-    icon: linkedin,
-    description: "Professional profile",
-  },
-];
 
 const Contact = () => {
-  const { t } = useLanguage();
-  const [copiedEmail, setCopiedEmail] = useState(false);
+  const { language } = useLanguage();
+  const isId = language === "id";
 
-  const handleCopyEmail = async (e, value) => {
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const emailAddress = "bilalmayorab@gmail.com";
+  const waNumber = "6281234567890"; // Dapat diubah sesuai nomor asli Bilal
+
+  const handleCopyEmail = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(value);
+      await navigator.clipboard.writeText(emailAddress);
       setCopiedEmail(true);
       setTimeout(() => setCopiedEmail(false), 2000);
     } catch (err) {
@@ -55,113 +36,232 @@ const Contact = () => {
     }
   };
 
-  return (
-    <section className="relative h-full flex items-center justify-center section-spacing">
-      <div className="mx-auto w-full max-w-3xl">
-        {/* Header — CTA-focused design */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-10 text-center"
-        >
-          <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-[var(--accent)] font-['JetBrains_Mono'] mb-3">
-            Get in touch
-          </p>
-          <h1 className="font-[Space_Grotesk] text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--text-primary)] tracking-tight">
-            {t("contact.title")}
-          </h1>
-          <p className="mt-2 text-[var(--text-secondary)] text-sm max-w-md mx-auto">{t("contact.subtitle")}</p>
-        </motion.div>
+  const contactChannels = [
+    {
+      id: "whatsapp",
+      name: "WhatsApp",
+      subtitle: isId ? "Pesan Langsung & Chat Cepat" : "Direct Messaging & Chat",
+      value: isId ? "Chat WhatsApp (+62)" : "WhatsApp Chat (+62)",
+      href: `https://wa.me/${waNumber}`,
+      isExternal: true,
+      featured: true,
+      actionLabel: isId ? "Buka WhatsApp" : "Open WhatsApp",
+      icon: (
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#25D366]/15 text-[#25D366] border border-[#25D366]/30">
+          <MessageCircle size={22} />
+        </div>
+      ),
+    },
+    {
+      id: "gmail",
+      name: "Gmail",
+      subtitle: isId ? "Email Resmi" : "Primary Email",
+      value: emailAddress,
+      href: `mailto:${emailAddress}`,
+      isEmail: true,
+      featured: true,
+      actionLabel: isId ? "Kirim Email" : "Send Email",
+      icon: (
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-hover)] border border-[var(--border-subtle)]">
+          <img src={gmail} alt="Gmail" className="w-5 h-5 object-contain" />
+        </div>
+      ),
+    },
+    {
+      id: "github",
+      name: "GitHub",
+      subtitle: isId ? "Repositori & Kode Terbuka" : "Code Repositories & Open Source",
+      value: "github.com/BilalMayor",
+      href: "https://github.com/BilalMayor",
+      isExternal: true,
+      actionLabel: isId ? "Kunjungi Profil" : "Visit Profile",
+      icon: (
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-hover)] border border-[var(--border-subtle)]">
+          <img src={github} alt="GitHub" className="w-5 h-5 object-contain" />
+        </div>
+      ),
+    },
+    {
+      id: "linkedin",
+      name: "LinkedIn",
+      subtitle: isId ? "Jaringan Profesional" : "Professional Network",
+      value: "in/bilal-abdillah-549143422",
+      href: "https://www.linkedin.com/in/bilal-abdillah-549143422",
+      isExternal: true,
+      actionLabel: isId ? "Lihat Profil" : "View Profile",
+      icon: (
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-hover)] border border-[var(--border-subtle)]">
+          <img src={linkedin} alt="LinkedIn" className="w-5 h-5 object-contain" />
+        </div>
+      ),
+    },
+    {
+      id: "instagram",
+      name: "Instagram",
+      subtitle: isId ? "Aktivitas & Keseharian" : "Daily Updates & Journey",
+      value: "@bilal.mayor",
+      href: "https://www.instagram.com/bilal.mayor",
+      isExternal: true,
+      actionLabel: isId ? "Buka Instagram" : "Open Instagram",
+      icon: (
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-hover)] border border-[var(--border-subtle)]">
+          <img src={instagram} alt="Instagram" className="w-5 h-5 object-contain" />
+        </div>
+      ),
+    },
+  ];
 
-        {/* GRID — 2x2 contact cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-        >
-          {socials.map((item, index) => (
+  return (
+    <section className="relative min-h-full flex items-center justify-center section-spacing py-6">
+      <div className="w-full max-w-4xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-2 max-w-xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-mono font-semibold bg-[rgba(var(--accent-rgb),0.1)] text-[var(--accent)] border border-[rgba(var(--accent-rgb),0.25)]"
+          >
+            <Sparkles size={13} className="animate-pulse" />
+            <span>{isId ? "Informasi Kontak" : "Contact Channels"}</span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="font-[Space_Grotesk] text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[var(--text-primary)]"
+          >
+            {isId ? "Hubungi Saya" : "Get in Touch"}
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed"
+          >
+            {isId
+              ? "Silakan terhubung langsung melalui platform komunikasi atau saluran media sosial di bawah ini."
+              : "Feel free to reach out or connect directly through any of the communication platforms below."}
+          </motion.p>
+        </div>
+
+        {/* Featured Channels: WhatsApp & Gmail (Top 2 large cards) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {contactChannels.slice(0, 2).map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.05 + index * 0.08 }}
+              whileHover={{ y: -3 }}
+              className="rounded-2xl p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between transition-all"
+              style={{
+                background: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+                boxShadow: "var(--glass-shadow)",
+              }}
+            >
+              <div className="glass-shimmer rounded-t-2xl" />
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  {item.icon}
+                  {item.isEmail ? (
+                    <button
+                      type="button"
+                      onClick={handleCopyEmail}
+                      className="p-2 rounded-lg cursor-pointer bg-[var(--bg-hover)] border border-[var(--border-subtle)] hover:border-[var(--accent)] transition-all"
+                      title={isId ? "Salin alamat email" : "Copy email address"}
+                    >
+                      {copiedEmail ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} className="text-[var(--text-tertiary)]" />}
+                    </button>
+                  ) : (
+                    <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/25 font-semibold">
+                      WhatsApp Direct
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="font-[Space_Grotesk] font-bold text-base text-[var(--text-primary)]">
+                    {item.name}
+                  </h3>
+                  <p className="text-[11px] text-[var(--text-muted)] font-mono">{item.subtitle}</p>
+                </div>
+
+                <p className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] font-mono truncate">
+                  {item.value}
+                </p>
+              </div>
+
+              <div className="pt-4 mt-3 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                <span className="text-[11px] text-[var(--text-muted)]">
+                  {item.isEmail && copiedEmail ? (isId ? "Email disalin!" : "Copied!") : (isId ? "Saluran langsung" : "Direct channel")}
+                </span>
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--accent)] hover:underline"
+                >
+                  <span>{item.actionLabel}</span>
+                  <ArrowUpRight size={13} />
+                </a>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Social Profiles (3 Columns) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {contactChannels.slice(2).map((item, index) => (
             <motion.a
-              key={index}
+              key={item.id}
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
               initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.15 + index * 0.06 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 + index * 0.06 }}
               whileHover={{ y: -3 }}
-              className="group relative overflow-hidden rounded-xl p-4 sm:p-5
-                cursor-pointer border border-[var(--border-subtle)] hover:border-[rgba(var(--accent-rgb),0.2)]
-                transition-all duration-300"
+              className="rounded-xl p-4 sm:p-5 relative overflow-hidden flex flex-col justify-between group transition-all"
               style={{
                 background: "var(--bg-elevated)",
+                border: "1px solid var(--border-default)",
+                boxShadow: "var(--glass-shadow)",
               }}
             >
-              {/* Shimmer */}
               <div className="glass-shimmer rounded-t-xl" />
 
-              {/* Accent glow on hover */}
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl pointer-events-none"
-                style={{
-                  background: "radial-gradient(circle at 50% 0%, rgba(var(--accent-rgb), 0.08) 0%, transparent 75%)",
-                }}
-              />
-
-              <div className="relative z-10 flex items-center gap-3">
-                {/* Icon */}
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0
-                    transition-all duration-300 ease-out group-hover:scale-105
-                    bg-[var(--bg-hover)] border border-[var(--border-subtle)]
-                    group-hover:bg-[rgba(var(--accent-rgb),0.08)] group-hover:border-[rgba(var(--accent-rgb),0.15)]"
-                >
-                  <img src={item.icon} alt={`${item.name} Logo`} loading="lazy" decoding="async" className="w-5 h-5 object-contain" />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  {item.icon}
+                  <ArrowUpRight size={15} className="text-[var(--text-muted)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                 </div>
 
-                {/* Text */}
-                <div className="flex-1 overflow-hidden">
-                  <div className="flex items-center gap-1.5">
-                    <p className="font-semibold text-[var(--text-primary)] text-sm group-hover:text-white transition-colors">{item.name}</p>
-                    <span className="text-[10px] text-[var(--text-muted)] font-['JetBrains_Mono']">· {item.description}</span>
-                  </div>
-                  <p className="mt-0.5 text-xs text-[var(--text-tertiary)] font-['JetBrains_Mono'] truncate">{item.value}</p>
+                <div>
+                  <h4 className="font-[Space_Grotesk] font-bold text-sm text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors">
+                    {item.name}
+                  </h4>
+                  <p className="text-[11px] text-[var(--text-muted)] font-mono">{item.subtitle}</p>
                 </div>
 
-                {/* Copy button for email */}
-                {item.copyable ? (
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => handleCopyEmail(e, item.value)}
-                    className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors cursor-pointer
-                      bg-[var(--bg-hover)] border border-[var(--border-subtle)] hover:border-[rgba(var(--accent-rgb),0.2)]"
-                    aria-label="Copy email"
-                  >
-                    {copiedEmail ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                  </motion.button>
-                ) : (
-                  <ArrowUpRight size={14} className="text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors shrink-0" />
-                )}
+                <p className="text-xs text-[var(--text-secondary)] font-mono truncate">
+                  {item.value}
+                </p>
               </div>
             </motion.a>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Footer accent */}
-        <motion.p
-          className="text-center mt-8 text-[11px] text-[var(--text-muted)] font-['JetBrains_Mono']"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-        >
-          Prefer email? → bilalmayorab@gmail.com
-        </motion.p>
+        {/* Bottom Location Indicator */}
+        <div className="text-center pt-2">
+          <div className="inline-flex items-center gap-2 text-xs text-[var(--text-muted)] font-mono">
+            <MapPin size={13} className="text-[var(--accent)]" />
+            <span>Malang, Jawa Timur, Indonesia • SMK Telkom Malang</span>
+          </div>
+        </div>
       </div>
     </section>
   );
