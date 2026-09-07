@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { writeFileSync, mkdirSync } from "fs";
+import { writeFileSync, mkdirSync, realpathSync } from "fs";
 import { join } from "path";
 import chatHandler from "./api/chat.js";
 
@@ -98,10 +98,12 @@ function localChatApiPlugin() {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+  const rootDir = realpathSync(process.cwd());
+  const env = loadEnv(mode, rootDir, "");
   process.env = { ...process.env, ...env };
 
   return {
+    root: rootDir,
     plugins: [react(), tailwindcss(), localUploadPlugin(), localChatApiPlugin()],
     build: {
       target: "esnext",
