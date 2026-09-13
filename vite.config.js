@@ -109,15 +109,34 @@ export default defineConfig(({ mode }) => {
       target: "esnext",
       minify: "esbuild",
       cssMinify: true,
+      chunkSizeWarningLimit: 2500,
       rollupOptions: {
         output: {
           manualChunks(id) {
             if (id.includes("node_modules")) {
+              if (id.includes("@dimforge") || id.includes("@react-three/rapier")) {
+                return "vendor-rapier";
+              }
+              if (id.includes("@react-three/drei")) {
+                return "vendor-three-drei";
+              }
+              if (id.includes("@react-three/fiber")) {
+                return "vendor-three-fiber";
+              }
               if (id.includes("three")) {
                 return "vendor-three";
               }
               if (id.includes("firebase")) {
                 return "vendor-firebase";
+              }
+              if (id.includes("lucide-react") || id.includes("remixicon")) {
+                return "vendor-icons";
+              }
+              if (id.includes("gsap") || id.includes("@gsap")) {
+                return "vendor-gsap";
+              }
+              if (id.includes("motion")) {
+                return "vendor-motion";
               }
             }
           },
