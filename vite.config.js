@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { writeFileSync, mkdirSync, realpathSync } from "fs";
 import { join } from "path";
-import chatHandler from "./api/chat.js";
 
 // ── Local Upload Plugin ─────────────────────────────────────────────
 // Handles POST /api/upload-local during Vite dev server.
@@ -85,6 +84,7 @@ function localChatApiPlugin() {
               },
             };
 
+            const { default: chatHandler } = await import("./api/chat.js");
             await chatHandler(fakeReq, fakeRes);
           } catch (err) {
             console.error("[local-chat-api] Error:", err);

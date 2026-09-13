@@ -51,14 +51,7 @@ const checkRateLimit = (ip) => {
 };
 
 // Periodically clean up rate limit map
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, data] of rateLimitMap.entries()) {
-    if (now - data.firstRequest > RATE_LIMIT_WINDOW_MS) {
-      rateLimitMap.delete(ip);
-    }
-  }
-}, 5 * 60 * 1000);
+// Clean up expired rate limits lazily
 
 const getDynamicSystemPrompt = async (language = 'id') => {
   const langInstruction =
