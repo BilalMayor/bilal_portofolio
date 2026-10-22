@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // 1. Community Chat Messages
+    match /messages/{messageId} {
+      // Publicly readable so visitors can view the chat
+      allow read: if true;
+      
+      // Only logged-in users (Google, GitHub, Guest) can send messages
+      // Enforces strict schema, text length (<= 500 chars), and author UID integrity
+      allow create: if isAuthenticated()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 50;
+        
+      // Disallow tampering or deletion of chat history by visitors
+      allow update, delete: if false;
+    }
+    
+    // 2. Admin Collections (Projects, Gallery, Achievements, Overrides)
+    // Public read for portfolio visitors
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+    
+    match /gallery/{galleryId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+    
+    match /achievements/{achievementId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+    
+    match /static_overrides/{overrideId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+  }
+}

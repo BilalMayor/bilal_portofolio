@@ -2,10 +2,14 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { writeFileSync, mkdirSync, realpathSync } from "fs";
-import { join } from "path";
+import { basename, resolve, extname } from "path";
 
 // ── Local Upload Plugin ─────────────────────────────────────────────
-// Handles POST /api/upload-local during Vite dev server.
+// Handles POST /api/upload-local during Vite dev server with strict security checks.
+const ALLOWED_FOLDERS = new Set(["gallery", "projects", "achievements", "cards", "uploads"]);
+const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif", ".avif"]);
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10MB limit
+
 function localUploadPlugin() {
   return {
     name: "local-upload-plugin",
@@ -15,33 +19,109 @@ function localUploadPlugin() {
           return next();
         }
 
+        // CSRF Defense: Only allow requests originating from localhost / same-origin
+        const origin = req.headers["origin"] || req.headers["referer"];
+        if (origin) {
+          try {
+            const urlObj = new URL(origin);
+            const isLocal =
+              urlObj.hostname === "localhost" ||
+              urlObj.hostname === "127.0.0.1" ||
+              urlObj.hostname === "::1";
+            if (!isLocal) {
+              res.writeHead(403, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "Forbidden: Cross-origin upload rejected" }));
+              return;
+            }
+          } catch {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "Invalid Origin header" }));
+            return;
+          }
+        }
+
         let body = "";
-        req.on("data", (chunk) => { body += chunk.toString(); });
+        let totalSize = 0;
+
+        req.on("data", (chunk) => {
+          totalSize += chunk.length;
+          if (totalSize > 15 * 1024 * 1024) {
+            req.destroy();
+          } else {
+            body += chunk.toString();
+          }
+        });
+
         req.on("end", () => {
           try {
-            const { filename, data, folder = "gallery" } = JSON.parse(body);
+            if (!body) {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Empty request body" }));
+            }
 
-            // Strip the base64 header
+            const { filename: rawFilename, data, folder: rawFolder = "gallery" } = JSON.parse(body);
+
+            // 1. Validate & Whitelist Target Folder (Prevents Path Traversal)
+            const cleanFolder = String(rawFolder).toLowerCase().trim();
+            if (!ALLOWED_FOLDERS.has(cleanFolder)) {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Invalid upload folder target" }));
+            }
+
+            // 2. Validate & Sanitize Filename (Prevents Path Traversal & Arbitrary Execution)
+            if (!rawFilename || typeof rawFilename !== "string") {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Invalid filename" }));
+            }
+
+            const safeBaseName = basename(rawFilename).replace(/[^a-zA-Z0-9._-]/g, "_");
+            const ext = extname(safeBaseName).toLowerCase();
+            if (!ALLOWED_EXTENSIONS.has(ext)) {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Forbidden file type. Only image files allowed." }));
+            }
+
+            // 3. Strip data URL header and decode buffer
+            if (!data || typeof data !== "string") {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Missing image data" }));
+            }
+
             const base64Data = data.replace(/^data:image\/\w+;base64,/, "");
             const buffer = Buffer.from(base64Data, "base64");
 
-            // 1. Save into src/assets/<folder>/ — persisted in workspace
-            const assetsDir = join(process.cwd(), "src", "assets", folder);
+            if (buffer.length === 0 || buffer.length > MAX_UPLOAD_BYTES) {
+              res.writeHead(400, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Invalid file size (max 10MB)" }));
+            }
+
+            // 4. Strictly Verify Absolute Directory Boundaries
+            const workspaceRoot = realpathSync(process.cwd());
+            const assetsDir = resolve(workspaceRoot, "src", "assets", cleanFolder);
+            const publicDir = resolve(workspaceRoot, "public", cleanFolder);
+
+            const destAssetPath = resolve(assetsDir, safeBaseName);
+            const destPublicPath = resolve(publicDir, safeBaseName);
+
+            if (!destAssetPath.startsWith(assetsDir) || !destPublicPath.startsWith(publicDir)) {
+              res.writeHead(403, { "Content-Type": "application/json" });
+              return res.end(JSON.stringify({ error: "Security violation: Path Traversal detected" }));
+            }
+
+            // 5. Persist file safely
             mkdirSync(assetsDir, { recursive: true });
-            writeFileSync(join(assetsDir, filename), buffer);
+            writeFileSync(destAssetPath, buffer);
 
-            // 2. Save into public/<folder>/ — immediately served as static URL
-            const publicDir = join(process.cwd(), "public", folder);
             mkdirSync(publicDir, { recursive: true });
-            writeFileSync(join(publicDir, filename), buffer);
+            writeFileSync(destPublicPath, buffer);
 
-            const url = `/${folder}/${filename}`;
+            const url = `/${cleanFolder}/${safeBaseName}`;
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ url }));
           } catch (err) {
             console.error("[local-upload] Error:", err);
             res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "Upload failed" }));
+            res.end(JSON.stringify({ error: "Upload failed securely" }));
           }
         });
       });
@@ -104,6 +184,13 @@ export default defineConfig(({ mode }) => {
 
   return {
     root: rootDir,
+    server: {
+      headers: {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+      },
+    },
     plugins: [react(), tailwindcss(), localUploadPlugin(), localChatApiPlugin()],
     build: {
       target: "esnext",

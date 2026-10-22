@@ -1,9 +1,9 @@
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { useEffect, useState, useRef } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
 import { loginWithGoogle, loginWithGithub } from "../lib/auth";
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, limitToLast } from "firebase/firestore";
 import google from "../assets/cards/google.svg";
 import github from "../assets/cards/github.webp";
 import CyberCore from "../components/ui/CyberCore";
@@ -37,12 +37,14 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [isSending, setIsSending] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
 
   const messagesEndRef = useRef(null);
 
-  // Firestore real-time listener
+  // Firestore real-time listener (capped at last 80 messages to prevent memory exhaustion / DoS)
   useEffect(() => {
-    const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+    const q = query(collection(db, "messages"), orderBy("createdAt", "asc"), limitToLast(80));
     const unsub = onSnapshot(
       q,
       (snapshot) => {
@@ -77,20 +79,41 @@ const Chat = () => {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!message.trim() || !user) return;
-    const textToSend = message.trim();
+    if (!message.trim() || !user || isSending || cooldown) return;
+    
+    // Strict input length validation and sanitization
+    const cleanText = message.trim().slice(0, 500);
+    if (!cleanText) return;
+
     setMessage("");
+    setIsSending(true);
+    setCooldown(true);
+    setTimeout(() => setCooldown(false), 1500); // 1.5s anti-flood throttling
+
+    const safePhoto = (url) => {
+      if (url && typeof url === "string" && (url.startsWith("https://") || url.startsWith("http://"))) {
+        return url;
+      }
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || "A")}&background=FF6B35&color=fff`;
+    };
+
+    const cleanName = (user.displayName || "Anonymous Explorer")
+      .replace(/[^\p{L}\p{N}\s._-]/gu, "")
+      .trim()
+      .slice(0, 40) || "Anonymous Explorer";
 
     try {
       await addDoc(collection(db, "messages"), {
-        text: textToSend,
+        text: cleanText,
         uid: user.uid,
-        name: user.displayName || "Anonymous Explorer",
-        photo: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || "A")}&background=FF6B35&color=fff`,
+        name: cleanName,
+        photo: safePhoto(user.photoURL),
         createdAt: serverTimestamp(),
       });
     } catch (error) {
       console.error("Error sending message:", error);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -301,8 +324,9 @@ const Chat = () => {
                     >
                       {!isMe && (
                         <img
-                          src={msg.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(msg.name || "U")}&background=FF6B35&color=fff`}
-                          alt={msg.name}
+                          src={msg.photo && typeof msg.photo === "string" && (msg.photo.startsWith("https://") || msg.photo.startsWith("http://")) ? msg.photo : `https://ui-avatars.com/api/?name=${encodeURIComponent(msg.name || "U")}&background=FF6B35&color=fff`}
+                          alt={msg.name || "User"}
+                          loading="lazy"
                           className="w-7 h-7 rounded-full object-cover shrink-0 mt-1 border border-[var(--border-subtle)]"
                         />
                       )}

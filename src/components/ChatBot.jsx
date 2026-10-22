@@ -71,22 +71,35 @@ const parseInlineFormatting = (text) => {
       elements.push(text.substring(lastIndex, match.index));
     }
 
+    const isValidHttpUrl = (str) => {
+      try {
+        const u = new URL(str);
+        return u.protocol === "https:" || u.protocol === "http:";
+      } catch {
+        return false;
+      }
+    };
+
     if (match[1]) {
       // Markdown link: [text](url)
       const linkText = match[2];
       const linkUrl = match[3];
-      elements.push(
-        <a
-          key={match.index}
-          href={linkUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-(--accent) hover:text-white underline font-semibold transition-colors break-all"
-        >
-          <span>{linkText}</span>
-          <i className="ri-external-link-line text-xs shrink-0" />
-        </a>
-      );
+      if (isValidHttpUrl(linkUrl)) {
+        elements.push(
+          <a
+            key={match.index}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-(--accent) hover:text-white underline font-semibold transition-colors break-all"
+          >
+            <span>{linkText}</span>
+            <i className="ri-external-link-line text-xs shrink-0" />
+          </a>
+        );
+      } else {
+        elements.push(linkText);
+      }
     } else if (match[4]) {
       // Bold text: **text**
       const boldText = match[5];
@@ -98,18 +111,22 @@ const parseInlineFormatting = (text) => {
     } else if (match[6]) {
       // Raw URL
       const rawUrl = match[6];
-      elements.push(
-        <a
-          key={match.index}
-          href={rawUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-(--accent) hover:text-white underline font-semibold transition-colors break-all"
-        >
-          <span>{rawUrl.replace(/^https?:\/\/(www\.)?/, "")}</span>
-          <i className="ri-external-link-line text-xs shrink-0" />
-        </a>
-      );
+      if (isValidHttpUrl(rawUrl)) {
+        elements.push(
+          <a
+            key={match.index}
+            href={rawUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-(--accent) hover:text-white underline font-semibold transition-colors break-all"
+          >
+            <span>{rawUrl.replace(/^https?:\/\/(www\.)?/, "")}</span>
+            <i className="ri-external-link-line text-xs shrink-0" />
+          </a>
+        );
+      } else {
+        elements.push(rawUrl);
+      }
     }
 
     lastIndex = combinedRegex.lastIndex;
@@ -211,7 +228,7 @@ const ChatBot = () => {
 
   const handleSend = async (e, textOverride = null) => {
     if (e) e.preventDefault();
-    const messageText = textOverride || input.trim();
+    const messageText = (textOverride || input).trim().slice(0, 1000);
     if (!messageText || isLoading) return;
 
     const userMessage = { role: 'user', content: messageText };
