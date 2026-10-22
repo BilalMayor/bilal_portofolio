@@ -8,6 +8,7 @@ import { useState, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../context/LanguageContext";
 import AnimatedList from "../components/ui/AnimatedList";
+import ErrorBoundary from "../components/ui/ErrorBoundary";
 
 const Lanyard = lazy(() => import("../components/ui/Lanyard"));
 
@@ -127,16 +128,26 @@ const About = ({ isReady }) => {
                 transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
                 className="w-full h-full"
               >
-                <Suspense fallback={
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-6 h-6 border-2 border-zinc-800 border-t-[var(--accent)] rounded-full animate-spin" />
-                      <span className="text-[var(--text-muted)] text-xs font-medium">{t("about.lanyardLoading")}</span>
+                <ErrorBoundary
+                  fallback={
+                    <div className="w-full h-full flex flex-col items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] p-6 text-center">
+                      <img src={bilal_avatar} alt="Bilal Mayor" className="w-24 h-24 rounded-full object-cover mb-3 border-2 border-[var(--accent)] shadow-lg" />
+                      <h3 className="font-bold text-sm text-[var(--text-primary)]">Bilal Mayor Abdillah</h3>
+                      <p className="text-xs text-[var(--text-muted)] mt-1 font-mono">Frontend Developer & Software QA</p>
                     </div>
-                  </div>
-                }>
-                  <Lanyard position={[0, 0, 13]} fov={22} />
-                </Suspense>
+                  }
+                >
+                  <Suspense fallback={
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-6 h-6 border-2 border-zinc-800 border-t-[var(--accent)] rounded-full animate-spin" />
+                        <span className="text-[var(--text-muted)] text-xs font-medium">{t("about.lanyardLoading")}</span>
+                      </div>
+                    </div>
+                  }>
+                    <Lanyard position={[0, 0, 13]} fov={22} />
+                  </Suspense>
+                </ErrorBoundary>
               </motion.div>
             </div>
           </div>

@@ -12,6 +12,7 @@ import AdminPanel from "./pages/AdminPanel";
 import CommandPalette from "./components/CommandPalette";
 import { isAdminLoggedIn } from "./lib/adminAuth";
 import { motion, AnimatePresence } from "motion/react";
+import ErrorBoundary from "./components/ui/ErrorBoundary";
 
 // Code Splitting - Lazy Load off-screen routes
 const Projects = lazy(() => import("./pages/Projects"));
@@ -133,22 +134,24 @@ const App = () => {
     <div className="select-none relative min-h-screen overflow-hidden" style={{ background: "var(--bg-deep)" }}>
       {/* Dynamic Aurora animated background */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        <Aurora
-          colorStops={
-            activeColor === "tangerine"
-              ? ["#FF6B35", "#ea580c", "#c2410c"]
-              : activeColor === "turquoise"
-              ? ["#00F5D4", "#06b6d4", "#0891b2"]
-              : activeColor === "fuchsia"
-              ? ["#F72585", "#d946ef", "#c026d3"]
-              : activeColor === "bronze"
-              ? ["#E2B870", "#d97706", "#b45309"]
-              : ["#6366F1", "#4f46e5", "#4338ca"]
-          }
-          blend={0.5}
-          amplitude={1.0}
-          speed={0.5}
-        />
+        <ErrorBoundary fallback={<div className="absolute inset-0 bg-[var(--bg-deep)]" />}>
+          <Aurora
+            colorStops={
+              activeColor === "tangerine"
+                ? ["#FF6B35", "#ea580c", "#c2410c"]
+                : activeColor === "turquoise"
+                ? ["#00F5D4", "#06b6d4", "#0891b2"]
+                : activeColor === "fuchsia"
+                ? ["#F72585", "#d946ef", "#c026d3"]
+                : activeColor === "bronze"
+                ? ["#E2B870", "#d97706", "#b45309"]
+                : ["#6366F1", "#4f46e5", "#4338ca"]
+            }
+            blend={0.5}
+            amplitude={1.0}
+            speed={0.5}
+          />
+        </ErrorBoundary>
       </div>
 
       <div className="relative z-10 flex items-center justify-center p-2 sm:p-3 lg:p-5 h-dvh lg:h-screen">
@@ -200,16 +203,18 @@ const App = () => {
                     exit="exit"
                     className="h-full"
                   >
-                    <Suspense fallback={
-                      <div className="h-full w-full flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="w-6 h-6 border-2 border-zinc-800 border-t-[var(--accent)] rounded-full animate-spin" />
-                          <span className="text-zinc-600 text-xs font-medium tracking-wide">Memuat...</span>
+                    <ErrorBoundary>
+                      <Suspense fallback={
+                        <div className="h-full w-full flex items-center justify-center">
+                          <div className="flex flex-col items-center gap-3">
+                            <div className="w-6 h-6 border-2 border-zinc-800 border-t-[var(--accent)] rounded-full animate-spin" />
+                            <span className="text-zinc-600 text-xs font-medium tracking-wide">Memuat...</span>
+                          </div>
                         </div>
-                      </div>
-                    }>
-                      {renderPage()}
-                    </Suspense>
+                      }>
+                        {renderPage()}
+                      </Suspense>
+                    </ErrorBoundary>
                   </motion.div>
                 </AnimatePresence>
               </main>
